@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:storify/utilitas/deleteData.dart';
 
 class DetailItem extends StatefulWidget {
-  String productName;
+  String productName, stok, harga, id;
 
-  DetailItem({super.key, required this.productName});
+  DetailItem({super.key, required this.productName, required this.stok, required this.harga, required this.id});
 
   @override
   State<DetailItem> createState() => _DetailItemState();
@@ -24,6 +25,9 @@ class _DetailItemState extends State<DetailItem> {
     int maxLines = 10;
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(onPressed: () {
+        showConfirmationPopup(context);
+      }),
       body: Container(
         child: SingleChildScrollView(
           child: Column(
@@ -97,7 +101,7 @@ class _DetailItemState extends State<DetailItem> {
                           child: Container(
                             width: width,
                             child: Text(
-                              "Description",
+                              "Info",
                               overflow: TextOverflow.ellipsis,
                               maxLines: maxLines,
                               textAlign: TextAlign.justify,
@@ -113,7 +117,23 @@ class _DetailItemState extends State<DetailItem> {
                           child: Container(
                             width: width,
                             child: Text(
-                              "Kursi ini merupakan salah satu produk terbaru kami yang menggabungkan kenyamanan dan desain modern yang elegan. Kursi ini dirancang dengan menggunakan bahan berkualitas tinggi yang memberikan kenyamanan yang luar biasa saat digunakan. Bahan yang digunakan pada kursi ini adalah bahan kulit sintetis yang tahan lama dan mudah dibersihkan. Selain itu, kursi ini juga dilengkapi dengan bantalan empuk yang memungkinkan pengguna untuk duduk dalam waktu lama tanpa merasa lelah atau pegal.",
+                              'harga : ${widget.harga}',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: maxLines,
+                              textAlign: TextAlign.justify,
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  fontFamily: 'Futura'),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 35, top: 10, right: 35, bottom: 25),
+                          child: Container(
+                            width: width,
+                            child: Text(
+                              'harga : ${widget.stok}',
                               overflow: TextOverflow.ellipsis,
                               maxLines: maxLines,
                               textAlign: TextAlign.justify,
@@ -145,4 +165,35 @@ class _DetailItemState extends State<DetailItem> {
       ),
     );
   }
+
+  void showConfirmationPopup(BuildContext context) {
+  // showDialog is a built-in function in Flutter that displays a popup
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Delete this item?'),
+        content: Text('Are you sure you want to delete this item?'),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Cancel'),
+            onPressed: () {
+              // close the popup and do nothing
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            child: Text('Delete'),
+            onPressed: () {
+              // close the popup and execute the deleteBarang function
+              Navigator.of(context).pop();
+              deleteBarang(int.parse(widget.id));
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 }

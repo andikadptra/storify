@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:storify/utilitas/register.dart';
+import 'package:storify/utilitas/sendDataProduct.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -11,7 +13,9 @@ class _RegisterPageState extends State<RegisterPage> {
   List<String> _roles = ['Staff', 'Admin', 'Kepala Gudang'];
 
   TextEditingController _nameController = TextEditingController();
+  TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  String role = '';
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +30,12 @@ class _RegisterPageState extends State<RegisterPage> {
           children: [
             TextFormField(
               controller: _nameController,
+              decoration: InputDecoration(
+                labelText: 'Nama',
+              ),
+            ),
+            TextFormField(
+              controller: _usernameController,
               decoration: InputDecoration(
                 labelText: 'Nama',
               ),
@@ -49,14 +59,16 @@ class _RegisterPageState extends State<RegisterPage> {
                 );
               }).toList(),
               onChanged: (selectedRole) {
+                role = selectedRole!;
                 setState(() {
-                  _selectedRole = selectedRole!;
+                  _selectedRole = selectedRole;
                 });
               },
             ),
             SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                final result = await DataSenderReg.sendData(_nameController.text, _usernameController.text, _passwordController.text, role);
                 // Fungsi yang dijalankan saat tombol ditekan
               },
               child: Text('Register'),

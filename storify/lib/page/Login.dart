@@ -4,6 +4,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:storify/page/MainPage.dart';
 import 'package:storify/page/register.dart';
 
+import '../utilitas/getData.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -12,6 +14,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     // Mendapatkan ukuran layar
@@ -21,10 +26,12 @@ class _LoginPageState extends State<LoginPage> {
     // Mendapatkan lebar layar
     final double width = size.width;
 
+    bool _isLoading = false;
+
     return Scaffold(
       body: Container(
         width: width,
-        height: height,
+        height: height + MediaQuery.of(context).padding.top,
         color: Color(0xFFF1F6F9),
         child: SingleChildScrollView(
           child: Column(
@@ -67,6 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: TextField(
+                      controller: _usernameController,
                       style: TextStyle(
                         fontFamily: 'Futura',
                         fontSize: 16.0,
@@ -91,6 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: TextField(
+                      controller: _passwordController,
                       style: TextStyle(
                         fontFamily: 'Futura',
                         fontSize: 16.0,
@@ -115,11 +124,37 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(5.0),
                   ),
                   child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => MainPage()),
-                      );
+                    onPressed: () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      var dataLevel = '';
+                      var data = await getDataUser();
+                      var user = data.where((user) =>
+                          user['Username'] == _usernameController.text &&
+                          user['Password'] == _passwordController.text);
+                      
+                      for (var user in data) {
+                        if (user['Username'] == _usernameController.text) {
+                          dataLevel = user['Level_akses'];
+                        }
+                      }
+
+                      print(dataLevel);
+                      if (user.length > 0) {
+                        // login berhasil, arahkan ke halaman selanjutnya
+                          Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MainPage(level: dataLevel.toLowerCase(),)),
+                        );
+                      } else {
+                        // login gagal, tampilkan pesan kesalahan
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Login failed')));
+                      }
+                      setState(() {
+                        _isLoading = false;
+                      });
                     },
                     child: Text(
                       'Sign in',
@@ -133,7 +168,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              
               Padding(
                 padding: const EdgeInsets.only(
                     top: 20, left: 40, right: 40, bottom: 20),
@@ -165,14 +199,14 @@ class _LoginPageState extends State<LoginPage> {
               ),
               Center(
                 child: Text(
-                        "Click here if you don't have an account yet",
-                        style: TextStyle(
-                          color: Color(0xff394867),
-                          fontFamily: 'Futura',
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                  "Click here if you don't have an account yet",
+                  style: TextStyle(
+                    color: Color(0xff394867),
+                    fontFamily: 'Futura',
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),

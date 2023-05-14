@@ -1,94 +1,120 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:storify/page/detailItem.dart';
+import 'package:storify/page/subPage/detailItem.dart';
 import 'package:storify/utilitas/database.dart';
+import 'package:storify/utilitas/search.dart';
+import 'package:http/http.dart' as http;
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  late List<Map<String, dynamic>> searchData;
+  late List<String> id;
+  SearchPage({super.key, required this.searchData, required this.id});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
+  List<Map<String, dynamic>> searchItems = [];
+  late String imageUrl = "";
+
+  @override
+  void initState() {
+    super.initState();
+    searchItems = widget.searchData;
+    getImageUrl();
+  }
+
+  Future<void> getImageUrl() async {
+    final response = await http.get(
+        Uri.parse("http://192.168.2.124/storify/getImage.php?id=${widget.id}"));
+    if (response.statusCode == 200) {
+      setState(() {
+        imageUrl = response.body;
+      });
+    } else {
+      print("Failed to load image");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          actions: [
-            Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 50, right: 10),
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Color(0xFFD9D9D9),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  style: TextStyle(
-                                    fontFamily: 'Futura',
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: 'Search',
-                                    border: InputBorder.none,
+        actions: [
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 50, right: 10),
+                    child: Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Color(0xFFD9D9D9),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                style: TextStyle(
+                                  fontFamily: 'Futura',
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: 'Search',
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2, bottom: 2),
+                              child: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                radius: 20.0,
+                                child: Center(
+                                  child: IconButton(
+                                    onPressed: () async {
+                                      // action when search icon is pressed
+
+                                      final data =
+                                          await DataFetcher.fetchData();
+                                      print(data);
+                                    },
+                                    icon: Icon(Icons.search),
+                                    color: Colors.grey,
                                   ),
                                 ),
                               ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 2, bottom: 2),
-                                child: CircleAvatar(
-                                  backgroundColor: Colors.white,
-                                  radius: 20.0,
-                                  child: Center(
-                                    child: IconButton(
-                                      onPressed: () {
-                                        // action when search icon is pressed
-                                      },
-                                      icon: Icon(Icons.search),
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
       drawer: const NavigationDrawer(),
       body: Row(
         children: [
           Expanded(
             child: Column(
               children: [
-                SizedBox(
-                  height: AppBar().preferredSize.height - 50
-                ),
+                SizedBox(height: AppBar().preferredSize.height - 50),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(left: 10, right: 10),
                     child: GridView.builder(
-                      itemCount: daftarBarang.length,
+                      itemCount: searchItems.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         childAspectRatio: 1.0,
@@ -98,8 +124,17 @@ class _SearchPageState extends State<SearchPage> {
                       itemBuilder: (BuildContext context, int index) {
                         return GestureDetector(
                           onTap: () {
-                            print(daftarBarang[index].foto);
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => DetailItem(productName: daftarBarang[index].nama_barang,),));
+                            print(searchItems[index]);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailItem(
+                                    id: searchItems[index]['Kode_barang'],
+                                      productName: searchItems[index]
+                                          ['Nama_barang'],
+                                      stok: searchItems[index]['Stok'],
+                                      harga: searchItems[index]['Harga']),
+                                ));
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -122,10 +157,11 @@ class _SearchPageState extends State<SearchPage> {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Colors.grey,
-                                      // image: DecorationImage(
-                                      //   image: AssetImage(daftarBarang[index].gambar),
-                                      //   fit: BoxFit.cover,
-                                      // ),
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                            'http://192.168.2.124/storify/img/download%20(1).jpg'),
+                                        fit: BoxFit.cover,
+                                      ),
                                       borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(10.0),
                                         topRight: Radius.circular(10.0),
@@ -138,10 +174,11 @@ class _SearchPageState extends State<SearchPage> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          daftarBarang[index].nama_barang,
+                                          searchItems[index]['Nama_barang'],
                                           style: TextStyle(
                                             fontSize: 18.0,
                                             fontWeight: FontWeight.bold,
@@ -149,7 +186,7 @@ class _SearchPageState extends State<SearchPage> {
                                         ),
                                         SizedBox(height: 5.0),
                                         Text(
-                                          "Stok: ${daftarBarang[index].stok_barang}",
+                                          "Stok: ${searchItems[index]['Stok']}",
                                           style: TextStyle(
                                             fontSize: 14.0,
                                             color: Colors.grey,
@@ -180,7 +217,5 @@ class NavigationDrawer extends StatelessWidget {
   const NavigationDrawer({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => Drawer(
-
-  );
+  Widget build(BuildContext context) => Drawer();
 }
