@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'ip.dart';
 
 class DataFetcher {
-  static const String apiUrl = 'http://192.168.2.124/storify';
+  static String apiUrl = 'http://${ip}//storify';
 
   static Future<List<Map<String, dynamic>>> fetchData() async {
     final url = '$apiUrl/fetchDataBarang.php';

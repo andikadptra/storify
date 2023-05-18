@@ -13,10 +13,11 @@ import 'package:storify/page/subPage/userPage.dart';
 import 'package:storify/utilitas/fungsiSearch.dart';
 import 'package:storify/utilitas/search.dart';
 import 'package:http/http.dart' as http;
+import 'package:storify/utilitas/getData.dart';
 
 class MainPage extends StatefulWidget {
-  final level;
-  MainPage({super.key, required this.level});
+  final level, id, username;
+  MainPage({super.key, required this.level, required this.id, required this.username});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -24,6 +25,15 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   TextEditingController searchController = TextEditingController();
+
+  Future<void> fetchData() async {
+  try {
+    List<dynamic> userData = await getDataUser();
+  } catch (e) {
+    print('Error: $e');
+  }
+}
+  
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +166,7 @@ class _MainPageState extends State<MainPage> {
                                 ),
                               ),
                               Text(
-                                'YoungLex',
+                                widget.username,
                                 style: TextStyle(
                                   fontFamily: 'Futura',
                                   fontSize: 18.0,
@@ -164,7 +174,7 @@ class _MainPageState extends State<MainPage> {
                                 ),
                               ),
                               Text(
-                                'Staff',
+                                widget.level,
                                 style: TextStyle(
                                   fontFamily: 'Futura',
                                   fontSize: 16.0,

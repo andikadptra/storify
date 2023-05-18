@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:storify/page/Login.dart';
+import 'package:storify/page/MainPage.dart';
 
 void main() {
   runApp(const MyApp());

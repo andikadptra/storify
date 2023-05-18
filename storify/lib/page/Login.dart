@@ -129,6 +129,8 @@ class _LoginPageState extends State<LoginPage> {
                         _isLoading = true;
                       });
                       var dataLevel = '';
+                      var dataId = '';
+                      var userName = '';
                       var data = await getDataUser();
                       var user = data.where((user) =>
                           user['Username'] == _usernameController.text &&
@@ -137,6 +139,8 @@ class _LoginPageState extends State<LoginPage> {
                       for (var user in data) {
                         if (user['Username'] == _usernameController.text) {
                           dataLevel = user['Level_akses'];
+                          dataId = user['Id_user'];
+                          userName = user['Username'];
                         }
                       }
 
@@ -145,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                         // login berhasil, arahkan ke halaman selanjutnya
                           Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => MainPage(level: dataLevel.toLowerCase(),)),
+                          MaterialPageRoute(builder: (context) => MainPage(level: dataLevel.toLowerCase(), id: dataId, username: userName)),
                         );
                       } else {
                         // login gagal, tampilkan pesan kesalahan

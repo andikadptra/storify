@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:storify/utilitas/register.dart';
-import 'package:storify/utilitas/sendDataProduct.dart';
+import 'package:storify/utilitas/uploadProduct.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -68,7 +67,7 @@ class _RegisterPageState extends State<RegisterPage> {
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
-                final result = await DataSenderReg.sendData(_nameController.text, _usernameController.text, _passwordController.text, role);
+                // final result = await DataSenderReg.sendData(_nameController.text, _usernameController.text, _passwordController.text, role);
                 // Fungsi yang dijalankan saat tombol ditekan
               },
               child: Text('Register'),

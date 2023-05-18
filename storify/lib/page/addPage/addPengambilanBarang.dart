@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:storify/utilitas/uploadPengambilan.dart';
+import 'package:storify/utilitas/getPelanggan.dart';
 
 class PengambilanPage extends StatefulWidget {
   const PengambilanPage({Key? key}) : super(key: key);
@@ -9,6 +11,26 @@ class PengambilanPage extends StatefulWidget {
 }
 
 class _PengambilanPageState extends State<PengambilanPage> {
+  List<dynamic> pelangganList = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchData();
+  }
+
+  void fetchData() async {
+    try {
+      final data = await DataFetcher.fetchPelangganData();
+      setState(() {
+        pelangganList = data;
+      });
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
   final _formKey = GlobalKey<FormState>();
   DateTime _selectedDate = DateTime.now();
   TextEditingController _descriptionController = TextEditingController();
@@ -23,7 +45,7 @@ class _PengambilanPageState extends State<PengambilanPage> {
     Pelanggan(id: 3, nama: 'Pelanggan C'),
   ];
   int? _selectedBarang;
-  int? _selectedPelanggan;
+  String? selectedPelanggan;
   int _jumlahBarang = 0;
 
   @override
@@ -116,7 +138,7 @@ class _PengambilanPageState extends State<PengambilanPage> {
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: Colors.white,
-                      labelText: 'Deskripsi',
+                      labelText: 'Keterangan',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
@@ -161,30 +183,25 @@ class _PengambilanPageState extends State<PengambilanPage> {
                           },
                         ),
                         SizedBox(height: 16.0),
-                        DropdownButtonFormField(
-                          value: _selectedPelanggan,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            labelText: 'Nama Pelanggan',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                          items: _PelangganList.map((Pelanggan) {
-                            return DropdownMenuItem(
-                              value: Pelanggan.id,
-                              child: Text(Pelanggan.nama,
-                                  style: TextStyle(
-                                      fontSize: 12, fontFamily: 'Futura')),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
+                        DropdownButtonFormField<String>(
+                          value: selectedPelanggan,
+                          onChanged: (newValue) {
                             setState(() {
-                              _selectedPelanggan = value;
+                              selectedPelanggan = newValue!;
                             });
                           },
-                        ),
+                          items: pelangganList
+                              .map<DropdownMenuItem<String>>((item) {
+                            return DropdownMenuItem<String>(
+                              value: item['Nama_pelanggan'],
+                              child: Text(item['Nama_pelanggan']),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            labelText: 'Nama Pelanggan',
+                            border: OutlineInputBorder(),
+                          ),
+                        )
                       ],
                     ),
                   ),
@@ -198,9 +215,18 @@ class _PengambilanPageState extends State<PengambilanPage> {
                         ),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
+                      print('${_selectedDate}, ${_jumlahBarang}, ${_descriptionController}, ${selectedPelanggan}');
                       if (_formKey.currentState!.validate()) {
                         // simpan data staff ke database atau melakukan tindakan lainnya
+                        // PengambilanBarang _barang = PengambilanBarang(
+                        //   tglPengambilan: tglPengambilan,
+                        //   jumlahBarang: jumlahBarang,
+                        //   keterangan: keterangan,
+                        //   idPelanggan: idPelanggan,
+                        //   kodeBarang: kodeBarang);
+                        //   DataSenderPengambilan.sendData(_barang).then((success) => print('Data sent: $success')).catchError((error) => print('Error sending data: $error'));
+
                         Navigator.pop(context);
                       }
                     },

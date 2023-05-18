@@ -2,20 +2,21 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:storify/utilitas/editData.dart';
 import 'package:storify/utilitas/search.dart';
 import 'package:storify/utilitas/uploadProduct.dart';
 import 'package:intl/intl.dart';
 import 'package:storify/utilitas/ip.dart';
 
-class BarangPage extends StatefulWidget {
-  final condition;
-  BarangPage({Key? key, required this.condition}) : super(key: key);
+class EditPage extends StatefulWidget {
+  final kodeEdit;
+  EditPage({Key? key, required this.kodeEdit}) : super(key: key);
 
   @override
-  _BarangPageState createState() => _BarangPageState();
+  _EditPageState createState() => _EditPageState();
 }
 
-class _BarangPageState extends State<BarangPage> {
+class _EditPageState extends State<EditPage> {
   final TextEditingController _textEditingController = TextEditingController();
 
   List<Map<String, dynamic>> _data = [];
@@ -44,42 +45,33 @@ class _BarangPageState extends State<BarangPage> {
     }
   }
 
-  Future<void> uploadImage(String kodeBarang, namaBarang, kodeJenisBarang,
-      harga, stok, deskripsi) async {
-    final namaProduk = 'iniIMG';
+  Future<void> editImage(String kodeBarang, namaBarang, kodeJenisBarang, harga, stok, deskripsi) async {
+  final namaProduk = 'iniIMG';
 
-    final uri = Uri.parse("http://${ip}//storify/uploadProduct.php");
-    var request = http.MultipartRequest('POST', uri);
-    var pic = await http.MultipartFile.fromPath("image", _image!.path);
-    request.files.add(pic);
-    var response = await request.send();
+  final uri = Uri.parse("http://${ip}//storify/uploadProduct.php");
+  var request = http.MultipartRequest('POST', uri);
+  var pic = await http.MultipartFile.fromPath("image", _image!.path);
+  request.files.add(pic);
+  var response = await request.send();
 
-    if (response.statusCode == 200) {
-      var imageUrl = await response.stream.bytesToString();
-      print('Image uploaded: $imageUrl');
+  if (response.statusCode == 200) {
+    var imageUrl = await response.stream.bytesToString();
+    print('Image edited: $imageUrl');
 
-      Barang barang = Barang(
-        kodeBarang: kodeBarang,
-        namaBarang: namaBarang,
-        kodeJenisBarang: kodeJenisBarang,
-        harga: harga,
-        stok: stok,
-        deskripsi: deskripsi,
-        image: imageUrl,
-      );
-      DataSender.sendData(barang)
-          .then((success) => print('Data sent: $success'))
-          .catchError((error) => print('Error sending data: $error'));
-    } else {
-      print('Image not uploaded');
-    }
+    editData(kodeBarang, namaBarang, kodeJenisBarang, harga, stok, deskripsi, imageUrl)
+    .then((_) => print('Data edited'))
+    .catchError((error) => print('Error: $error'));
+  } else {
+    print('Image not edited');
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Tambah Produk'),
+          title: Text('Edit Produk'),
         ),
         body: Padding(
             padding: EdgeInsets.all(16.0),
@@ -217,13 +209,6 @@ class _BarangPageState extends State<BarangPage> {
                             default:
                           }
 
-                          uploadImage(
-                              indexbarang.toString(),
-                              _namabarangcontroller.text,
-                              pilihanIndex.toString(),
-                              int.parse(_hargacontroller.text),
-                              int.parse(_stokcontroller.text),
-                              'deskripsi');
 
                           // final barang = Barang(
                           //   kodeBarang: indexbarang.toString(),
@@ -232,7 +217,7 @@ class _BarangPageState extends State<BarangPage> {
                           //   harga: int.parse(_hargacontroller.text),
                           //   stok: int.parse(_stokcontroller.text),
                           // );
-                          Navigator.pop(context);
+                          editImage(widget.kodeEdit.toString(),  _namabarangcontroller.text, pilihanIndex.toString(), _hargacontroller.text, _stokcontroller.text, 'deskripsi');
                         },
                         child: Text('Simpan'))
                   ],

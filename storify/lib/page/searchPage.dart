@@ -23,20 +23,8 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     super.initState();
     searchItems = widget.searchData;
-    getImageUrl();
   }
 
-  Future<void> getImageUrl() async {
-    final response = await http.get(
-        Uri.parse("http://192.168.2.124/storify/getImage.php?id=${widget.id}"));
-    if (response.statusCode == 200) {
-      setState(() {
-        imageUrl = response.body;
-      });
-    } else {
-      print("Failed to load image");
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +72,11 @@ class _SearchPageState extends State<SearchPage> {
 
                                       final data =
                                           await DataFetcher.fetchData();
-                                      print(data);
+                                      if (data.isEmpty) {
+                                        print('kosong');
+                                      } else {
+                                        print(data);
+                                      }
                                     },
                                     icon: Icon(Icons.search),
                                     color: Colors.grey,
@@ -129,7 +121,9 @@ class _SearchPageState extends State<SearchPage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => DetailItem(
-                                    id: searchItems[index]['Kode_barang'],
+                                    deskripsi: searchItems[index]['deskripsi'],
+                                      image: searchItems[index]['image'],
+                                      id: searchItems[index]['Kode_barang'],
                                       productName: searchItems[index]
                                           ['Nama_barang'],
                                       stok: searchItems[index]['Stok'],
@@ -158,9 +152,8 @@ class _SearchPageState extends State<SearchPage> {
                                     decoration: BoxDecoration(
                                       color: Colors.grey,
                                       image: DecorationImage(
-                                        image: NetworkImage(
-                                            'http://192.168.2.124/storify/img/download%20(1).jpg'),
-                                        fit: BoxFit.cover,
+                                        image: NetworkImage(searchItems[index]['image']),
+                                        fit: BoxFit.scaleDown,
                                       ),
                                       borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(10.0),
